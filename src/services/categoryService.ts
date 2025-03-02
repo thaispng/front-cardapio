@@ -23,7 +23,7 @@ export const getCategoryById = async (id: number) => {
 };
 
 
-export const createCategory = async (categoryData: { name: string }) => {
+export const createCategory = async (categoryData: { nome: string }) => {
   try {
     const response = await api.post("/categorias", categoryData);
     return response.data;
@@ -36,7 +36,7 @@ export const createCategory = async (categoryData: { name: string }) => {
 
 export const updateCategory = async (
   id: number,
-  categoryData: { name: string }
+  categoryData: { nome: string }
 ) => {
   try {
     const response = await api.put(`/categorias/${id}`, categoryData);
