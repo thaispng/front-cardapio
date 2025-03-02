@@ -132,12 +132,11 @@ export default function MenuDialog({ menu, open, onOpenChange }: MenuDialogProps
                             </div>
 
                             <div>
-                                <Label>Turno</Label>
                                 <Select
                                     onValueChange={(value) => setValue("turno", value, { shouldValidate: true })}
                                     value={watch("turno")}
                                 >
-                                    <SelectTrigger>
+                                    <SelectTrigger disabled={!!menu}>
                                         <SelectValue placeholder="Selecione um turno" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -145,6 +144,7 @@ export default function MenuDialog({ menu, open, onOpenChange }: MenuDialogProps
                                         <SelectItem value="NOTURNO">Noite</SelectItem>
                                     </SelectContent>
                                 </Select>
+
                             </div>
 
                             <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
