@@ -1,9 +1,9 @@
 export interface Menu {
-  id?: number;
+  id?: string;
   turno: string;
-  produtoId: string;
+  produtoIds: string[];
   produtos?: {
-    id: number;
+    id: string;
     produto?: { nome: string; descricao: string; preco: number };
   }[];
 }

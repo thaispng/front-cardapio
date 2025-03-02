@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -18,17 +18,20 @@ import { getProducts } from "@/services/productService";
 import { toast } from "sonner";
 import { createMenuItem, updateMenuItem } from "@/services/menuService";
 import { Menu } from "@/types/menu";
+import { Checkbox } from "./ui/checkbox";
+import { Product } from "@/types/product";
 
 interface MenuDialogProps {
-    menu?: { id?: number; produtoId: string; turno: string };
+    menu?: { id?: number; produtos: { produtoId: string }[]; turno: string };
     open?: boolean;
     onOpenChange?: (open: boolean) => void;
 }
 
 export default function MenuDialog({ menu, open, onOpenChange }: MenuDialogProps) {
+    const [selectedProducts, setSelectedProducts] = useState<string[]>();
     const queryClient = useQueryClient();
-    const { handleSubmit, setValue, watch, reset } = useForm<{ produtoId: string; turno: string }>({
-        defaultValues: { produtoId: "", turno: "" },
+    const { handleSubmit, setValue, watch, reset } = useForm<{ produtoIds: string[]; turno: string }>({
+        defaultValues: { produtoIds: [], turno: "" },
     });
 
     const { data: products } = useQuery({ queryKey: ["products"], queryFn: getProducts });
@@ -36,14 +39,26 @@ export default function MenuDialog({ menu, open, onOpenChange }: MenuDialogProps
     useEffect(() => {
         if (menu) {
             console.log("Dados recebidos no modal:", menu);
-            console.log("Produto ID recebido:", menu.produtoId);
-            setValue("produtoId", menu.produtoId ?? "", { shouldValidate: true });
             setValue("turno", menu.turno ?? "", { shouldValidate: true });
         } else {
             reset();
         }
     }, [menu, setValue, reset]);
 
+    useEffect(() => {
+        if (products && menu && !selectedProducts) {
+            const selectedProducts = products.filter((product) =>
+                menu.produtos.some((p) => p.produtoId === product.id)
+            );
+            setSelectedProducts(selectedProducts.map((p) => p.id!));
+        }
+    }, [menu, products, selectedProducts])
+
+    useEffect(() => {
+        if (selectedProducts !== watch("produtoIds") && selectedProducts?.length) {
+            setValue("produtoIds", selectedProducts, { shouldValidate: true });
+        }
+    }, [selectedProducts, setValue, watch])
 
 
     const createMutation = useMutation({
@@ -58,9 +73,12 @@ export default function MenuDialog({ menu, open, onOpenChange }: MenuDialogProps
     });
 
     const updateMutation = useMutation({
-        mutationFn: (data: { produtoId: string; turno: string }) => {
-            if (!menu?.id) throw new Error("Menu não encontrado ou ID inválido");
-            return updateMenuItem(Number(menu.id), { id: Number(menu.id), ...data });
+        mutationFn: (data: { produtoIds: string[]; turno: string }) => {
+            if (!menu?.id) {
+                console.error("Erro: ID do menu inválido", menu?.id);
+                throw new Error("ID inválido para atualização");
+            }
+            return updateMenuItem(menu.id.toString(), { id: menu.id.toString(), ...data });
         },
         onSuccess: () => {
             toast.success("Menu atualizado com sucesso!");
@@ -70,15 +88,13 @@ export default function MenuDialog({ menu, open, onOpenChange }: MenuDialogProps
         },
         onError: () => toast.error("Erro ao atualizar o menu"),
     });
-
-    const onSubmit = (data: { produtoId: string; turno: string }) => {
+    const onSubmit = (data: { produtoIds: string[]; turno: string }) => {
         if (menu) {
             updateMutation.mutate(data);
         } else {
             createMutation.mutate(data);
         }
     };
-
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             {!menu && (
@@ -93,27 +109,26 @@ export default function MenuDialog({ menu, open, onOpenChange }: MenuDialogProps
                         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
                             <div>
                                 <Label>Produto</Label>
-                                <Select
-                                    onValueChange={(value) => {
-                                        console.log("Produto selecionado:", value);
-                                        setValue("produtoId", value, { shouldValidate: true });
-                                    }}
-                                    value={watch("produtoId")}
-                                >
-
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Selecione um produto" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {products?.map(({ id, nome }) => (
-                                            id && (
-                                                <SelectItem key={id} value={id.toString()}>
-                                                    {nome}
-                                                </SelectItem>
-                                            )
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                <div className="flex flex-col mt-3 gap-2">
+                                    {products?.map((product: Product) => (
+                                        <div className="flex flex-row gap-2" key={product.id}>
+                                            <Checkbox
+                                                name="produtoId"
+                                                defaultChecked={!!menu?.produtos.find(produto => produto.produtoId === product.id)}
+                                                value={product.id}
+                                                onCheckedChange={(value) => {
+                                                    if (value && !selectedProducts!.includes(product.id!)) {
+                                                        setSelectedProducts([...selectedProducts!, product.id!]);
+                                                    } else {
+                                                        setSelectedProducts(selectedProducts!.filter((p) => p !== product.id));
+                                                    }
+                                                }
+                                                }
+                                            />
+                                            <label>{product.nome}</label>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
 
                             <div>

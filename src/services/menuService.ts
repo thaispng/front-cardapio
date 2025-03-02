@@ -31,13 +31,30 @@ export const createMenuItem = async (menuItemData: Menu) => {
   }
 };
 
-export const updateMenuItem = async (id: number, menuItemData: Menu) => {
+export const updateMenuItem = async (id: string, menuItemData: Menu) => {
+  if (!id) {
+    throw new Error("ID inválido: O ID do menu é obrigatório.");
+  }
+
   try {
+    console.log("Atualizando menu item com ID:", id);
+    console.log("Dados enviados:", menuItemData);
+
     const response = await api.put(`/cardapio/${id}`, menuItemData);
     return response.data;
-  } catch (error) {
-    console.error("Erro ao atualizar item do cardápio:", error);
-    throw error;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error(
+        "Erro ao atualizar item do cardápio:",
+        (error as { response?: { data?: string } }).response?.data || error.message
+      );
+    } else {
+      console.error("Erro ao atualizar item do cardápio:", error);
+    }
+    throw new Error(
+      (error as { response?: { data?: { message?: string } } }).response?.data?.message ||
+        "Erro desconhecido ao atualizar o item do cardápio."
+    );
   }
 };
 
