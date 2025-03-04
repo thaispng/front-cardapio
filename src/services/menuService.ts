@@ -11,7 +11,7 @@ export const getMenuItems = async () => {
   }
 };
 
-export const getMenuItemById = async (id: number) => {
+export const getMenuItemById = async (id: string) => {
   try {
     const response = await api.get(`/cardapio/${id}`);
     return response.data;
@@ -46,19 +46,20 @@ export const updateMenuItem = async (id: string, menuItemData: Menu) => {
     if (error instanceof Error) {
       console.error(
         "Erro ao atualizar item do cardápio:",
-        (error as { response?: { data?: string } }).response?.data || error.message
+        (error as { response?: { data?: string } }).response?.data ||
+          error.message
       );
     } else {
       console.error("Erro ao atualizar item do cardápio:", error);
     }
     throw new Error(
-      (error as { response?: { data?: { message?: string } } }).response?.data?.message ||
-        "Erro desconhecido ao atualizar o item do cardápio."
+      (error as { response?: { data?: { message?: string } } }).response?.data
+        ?.message || "Erro desconhecido ao atualizar o item do cardápio."
     );
   }
 };
 
-export const deleteMenuItem = async (id: number) => {
+export const deleteMenuItem = async (id: string) => {
   try {
     const response = await api.delete(`/cardapio/${id}`);
     return response.data;

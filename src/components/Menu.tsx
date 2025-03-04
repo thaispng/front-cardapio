@@ -86,7 +86,7 @@ export default function Menu() {
 
     const handleDelete = (menu: Menu) => {
         if (menu.id !== undefined) {
-            deleteMutation.mutate(Number(menu.id))
+            deleteMutation.mutate(menu.id)
         } else {
             toast.error("ID do menu não encontrado.")
         }
