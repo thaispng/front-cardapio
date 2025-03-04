@@ -1,7 +1,6 @@
 import api from "./api";
 import { Product } from "@/types/product";
 
-
 export const getProducts = async (): Promise<Product[]> => {
   try {
     const response = await api.get("/produtos");
@@ -12,8 +11,7 @@ export const getProducts = async (): Promise<Product[]> => {
   }
 };
 
-
-export const getProductById = async (id: number): Promise<Product> => {
+export const getProductById = async (id: string): Promise<Product> => {
   try {
     const response = await api.get(`/produtos/${id}`);
     return response.data;
@@ -22,7 +20,6 @@ export const getProductById = async (id: number): Promise<Product> => {
     throw error;
   }
 };
-
 
 export const createProduct = async (productData: Product): Promise<Product> => {
   try {
@@ -34,9 +31,8 @@ export const createProduct = async (productData: Product): Promise<Product> => {
   }
 };
 
-
 export const updateProduct = async (
-  id: number,
+  id: string,
   productData: Partial<Product>
 ): Promise<Product> => {
   try {
@@ -48,8 +44,7 @@ export const updateProduct = async (
   }
 };
 
-
-export const deleteProduct = async (id: number): Promise<void> => {
+export const deleteProduct = async (id: string): Promise<void> => {
   try {
     await api.delete(`/produtos/${id}`);
   } catch (error) {

@@ -4,6 +4,12 @@ export interface Menu {
   produtoIds: string[];
   produtos?: {
     id: string;
-    produto?: { nome: string; descricao: string; preco: number };
+    produtoId: string;
+    produtos?: {
+      nome: string;
+      descricao: string;
+      preco: number;
+      produtoId: string;
+    };
   }[];
 }

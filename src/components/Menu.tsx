@@ -40,10 +40,10 @@ const columns: ColumnDef<Menu>[] = [
                             <div className="max-h-60 overflow-y-auto">
                                 {produtos.map((item) => (
                                     <div key={item.id} className="border-b py-2 last:border-0">
-                                        <div className="font-medium">{item.produto?.nome}</div>
+                                        <div className="font-medium">{item.produtos?.nome}</div>
                                         <div className="text-sm text-muted-foreground flex justify-between">
-                                            <span>{item.produto?.descricao}</span>
-                                            <span className="font-medium">{formatCurrency(item.produto?.preco || 0)}</span>
+                                            <span>{item.produtos?.descricao}</span>
+                                            <span className="font-medium">{formatCurrency(item.produtos?.preco || 0)}</span>
                                         </div>
                                     </div>
                                 ))}
@@ -63,7 +63,7 @@ export default function Menu() {
     const [selectedMenu, setSelectedMenu] = useState<Menu | undefined>(undefined)
     const [isDialogOpen, setIsDialogOpen] = useState(false)
     const queryClient = useQueryClient()
-
+    console.log(selectedMenu)
     const {
         data: menu = [],
         isLoading,
@@ -86,14 +86,13 @@ export default function Menu() {
 
     const handleDelete = (menu: Menu) => {
         if (menu.id !== undefined) {
-            deleteMutation.mutate(menu.id)
+            deleteMutation.mutate(Number(menu.id))
         } else {
             toast.error("ID do menu não encontrado.")
         }
     }
 
     const handleEdit = (menu: Menu) => {
-        console.log("Menu enviado para edição:", { ...menu, produtoId: menu.produtoId ?? "N/A" })
         setSelectedMenu(menu)
         setIsDialogOpen(true)
     }
